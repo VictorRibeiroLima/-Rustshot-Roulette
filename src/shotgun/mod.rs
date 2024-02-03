@@ -1,14 +1,22 @@
 use rand::seq::SliceRandom;
 
-use crate::shell::{self, Shell};
+use crate::shell::Shell;
 
 #[derive(Debug, Clone)]
 pub struct Shotgun {
     shells: Vec<Shell>,
     sawed: bool,
 }
+pub struct FireResult {
+    pub damage: u8,
+    pub shell: Shell,
+}
 
 impl Shotgun {
+    pub fn empty(&self) -> bool {
+        self.shells.is_empty()
+    }
+
     pub fn new(mut shells: Vec<Shell>) -> Self {
         let rng = &mut rand::thread_rng();
         shells.shuffle(rng);
@@ -18,16 +26,16 @@ impl Shotgun {
         }
     }
 
-    pub fn fire(&mut self) -> u8 {
+    pub fn fire(&mut self) -> FireResult {
         let shell = self.shells.pop().unwrap();
         match shell {
-            Shell::Empty => 0,
+            Shell::Empty => FireResult { damage: 0, shell },
             Shell::Loaded => {
                 if self.sawed {
                     self.sawed = false;
-                    2
+                    FireResult { damage: 2, shell }
                 } else {
-                    1
+                    FireResult { damage: 1, shell }
                 }
             }
         }

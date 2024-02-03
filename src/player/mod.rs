@@ -46,13 +46,14 @@ impl Player {
     }
 
     pub fn get_shot(&mut self, damage: u8) {
+        let shotgun = self.shotgun.borrow();
         match self.health.checked_sub(damage) {
             Some(health) => self.health = health,
             None => self.health = 0,
         }
         if self.hand_cuffs {
             self.hand_cuffs = false;
-        } else {
+        } else if !shotgun.empty() {
             self.turn = true;
         }
     }
@@ -92,26 +93,30 @@ impl Player {
         Err(())
     }
 
-    pub fn shot_enemy(&mut self, opponent: &mut Player) -> Result<(), ()> {
+    pub fn shot_enemy(&mut self, opponent: &mut Player) -> Shell {
         let mut shotgun = self.shotgun.borrow_mut();
-        let damage = shotgun.fire();
+        let result = shotgun.fire();
+        let damage = result.damage;
+        let shell = result.shell;
         opponent.get_shot(damage);
-        if opponent.turn {
+        if opponent.turn || shotgun.empty() {
             self.turn = false;
         }
-        Ok(())
+        shell
     }
 
-    pub fn shot_self(&mut self) -> Result<(), ()> {
+    pub fn shot_self(&mut self) -> Shell {
         let mut shotgun = self.shotgun.borrow_mut();
-        let damage = shotgun.fire();
+        let result = shotgun.fire();
+        let damage = result.damage;
+        let shell = result.shell;
         match self.health.checked_sub(damage) {
             Some(damage) => self.health = damage,
             None => self.health = 0,
         };
-        if self.health == 0 {
+        if self.health == 0 || shotgun.empty() {
             self.turn = false;
         }
-        Ok(())
+        shell
     }
 }

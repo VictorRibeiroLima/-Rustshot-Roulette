@@ -1,7 +1,18 @@
+use std::fmt::Display;
+
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Shell {
     Empty,
     Loaded,
+}
+
+impl Display for Shell {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Shell::Empty => write!(f, "Empty Shell"),
+            Shell::Loaded => write!(f, "Loaded Shell"),
+        }
+    }
 }
 
 pub fn gen_shells() -> Vec<Shell> {

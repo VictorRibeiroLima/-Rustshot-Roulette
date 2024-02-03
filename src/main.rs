@@ -26,88 +26,104 @@ fn main() {
     println!("{}", player2);
 
     loop {
-        let input = get_input();
-        let input = input.trim();
-        match input {
-            "1" => {
-                let item = item::Item::Beer;
-                let result = player1.use_item(item, &mut player2);
-                match result {
-                    Ok(shell) => {
-                        if let Some(shell) = shell {
-                            println!("Player 1 used a beer and got a {:?}", shell);
-                        } else {
-                            println!("Player 1 used a beer but there are no more left");
+        while player1.turn {
+            let input = get_input();
+            let input = input.trim();
+            match input {
+                "1" => {
+                    let item = item::Item::Beer;
+                    let result = player1.use_item(item, &mut player2);
+                    match result {
+                        Ok(shell) => {
+                            if let Some(shell) = shell {
+                                println!("Player 1 used a beer and got a {:?}", shell);
+                            } else {
+                                println!("Player 1 used a beer but there are no more left");
+                            }
+                        }
+                        Err(_) => {
+                            println!("Player 1 does not have any beers left");
                         }
                     }
-                    Err(_) => {
-                        println!("Player 1 does not have any beers left");
-                    }
                 }
-            }
-            "2" => {
-                let item = item::Item::Saw;
-                let result = player1.use_item(item, &mut player2);
-                match result {
-                    Ok(_) => {
-                        println!("Player 1 used a saw");
-                    }
-                    Err(_) => {
-                        println!("Player 1 does not have a saw");
-                    }
-                }
-            }
-            "3" => {
-                let item = item::Item::MagnifyingGlass;
-                let result = player1.use_item(item, &mut player2);
-                match result {
-                    Ok(shell) => {
-                        if let Some(shell) = shell {
-                            println!("Player 1 used a magnifying glass and saw a {:?}", shell);
-                        } else {
-                            println!(
-                                "Player 1 used a magnifying glass but there are no more shells"
-                            );
+                "2" => {
+                    let item = item::Item::Saw;
+                    let result = player1.use_item(item, &mut player2);
+                    match result {
+                        Ok(_) => {
+                            println!("Player 1 used a saw");
+                        }
+                        Err(_) => {
+                            println!("Player 1 does not have a saw");
                         }
                     }
-                    Err(_) => {
-                        println!("Player 1 does not have a magnifying glass");
+                }
+                "3" => {
+                    let item = item::Item::MagnifyingGlass;
+                    let result = player1.use_item(item, &mut player2);
+                    match result {
+                        Ok(shell) => {
+                            if let Some(shell) = shell {
+                                println!("Player 1 used a magnifying glass and saw a {:?}", shell);
+                            } else {
+                                println!(
+                                    "Player 1 used a magnifying glass but there are no more shells"
+                                );
+                            }
+                        }
+                        Err(_) => {
+                            println!("Player 1 does not have a magnifying glass");
+                        }
                     }
                 }
-            }
-            "4" => {
-                let item = item::Item::Cigarette;
-                let result = player1.use_item(item, &mut player2);
-                match result {
-                    Ok(_) => {
-                        println!("Player 1 used a cigarette");
-                    }
-                    Err(_) => {
-                        println!("Player 1 does not have a cigarette");
-                    }
-                }
-            }
-            "5" => {
-                let item = item::Item::Handcuffs;
-                let result = player1.use_item(item, &mut player2);
-                match result {
-                    Ok(_) => {
-                        println!("Player 1 used handcuffs");
-                    }
-                    Err(_) => {
-                        println!("Player 1 does not have handcuffs");
+                "4" => {
+                    let item = item::Item::Cigarette;
+                    let result = player1.use_item(item, &mut player2);
+                    match result {
+                        Ok(_) => {
+                            println!("Player 1 used a cigarette");
+                        }
+                        Err(_) => {
+                            println!("Player 1 does not have a cigarette");
+                        }
                     }
                 }
-            }
-            "exit" => {
-                break;
-            }
-            _ => {
-                println!("Unknown command");
+                "5" => {
+                    let item = item::Item::Handcuffs;
+                    let result = player1.use_item(item, &mut player2);
+                    match result {
+                        Ok(_) => {
+                            println!("Player 1 used handcuffs");
+                        }
+                        Err(_) => {
+                            println!("Player 1 does not have handcuffs");
+                        }
+                    }
+                }
+                "enemy" => {
+                    let shell = player1.shot_enemy(&mut player2);
+                    println!("Player 1 shot player 2 with a {}", shell);
+                }
+                "self" => {
+                    let shell = player1.shot_self();
+                    println!("Player 1 shot themselves with a {}", shell);
+                }
+                "exit" => {
+                    player1.turn = false;
+                }
+                _ => {
+                    println!("Unknown command");
+                }
             }
         }
 
-        if !player1.turn {
+        while player2.turn {
+            println!("Player 2's turn");
+        }
+
+        let turns_left = player1.turn || player2.turn;
+        if !turns_left {
+            println!("Round over");
             break;
         }
     }

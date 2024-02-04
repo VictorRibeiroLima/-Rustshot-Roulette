@@ -1,6 +1,7 @@
 use std::{
     cell::RefCell,
     io::{self, Write},
+    rc::Rc,
 };
 
 use crate::player::Player;
@@ -11,17 +12,20 @@ mod shell;
 mod shotgun;
 
 fn main() {
+    println!("Welcome to RUSTSHOT ROULETTE!");
+    println!("");
     let shells = shell::gen_shells();
+    println!("{:?}", shells);
     let shotgun = shotgun::Shotgun::new(shells);
     let max_health = rand::random::<u8>() % 2 + 2;
     let shotgun = RefCell::new(shotgun);
+    let shotgun = Rc::new(shotgun);
     let mut player1 = Player::new("Player 1".to_string(), shotgun.clone());
     let mut player2 = Player::new("Player 2".to_string(), shotgun.clone());
 
     player1.new_round(max_health, true);
     player2.new_round(max_health, false);
 
-    println!("{:?}", shotgun);
     println!("{}", player1);
     println!("{}", player2);
 
@@ -64,7 +68,10 @@ fn main() {
                     match result {
                         Ok(shell) => {
                             if let Some(shell) = shell {
-                                println!("Player 1 used a magnifying glass and saw a {:?}", shell);
+                                println!(
+                                    "Player 1 used a magnifying glass and it saw a {:?}",
+                                    shell
+                                );
                             } else {
                                 println!(
                                     "Player 1 used a magnifying glass but there are no more shells"
@@ -119,6 +126,7 @@ fn main() {
 
         while player2.turn {
             println!("Player 2's turn");
+            player2.shot_enemy(&mut player1);
         }
 
         let turns_left = player1.turn || player2.turn;

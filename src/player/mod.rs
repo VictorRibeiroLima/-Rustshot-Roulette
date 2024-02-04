@@ -1,4 +1,4 @@
-use std::{cell::RefCell, fmt::Display};
+use std::{cell::RefCell, fmt::Display, rc::Rc};
 
 use crate::{
     item::{list::ItemList, Item},
@@ -12,7 +12,7 @@ pub struct Player {
     pub max_health: u8,
     pub health: u8,
     pub items: ItemList,
-    pub shotgun: RefCell<Shotgun>,
+    pub shotgun: Rc<RefCell<Shotgun>>,
     pub turn: bool,
     pub hand_cuffs: bool,
 }
@@ -26,7 +26,7 @@ impl Display for Player {
 }
 
 impl Player {
-    pub fn new(name: String, shotgun: RefCell<Shotgun>) -> Self {
+    pub fn new(name: String, shotgun: Rc<RefCell<Shotgun>>) -> Self {
         Self {
             name,
             health: 4,
@@ -65,6 +65,9 @@ impl Player {
                 Item::Beer => {
                     let mut shotgun = self.shotgun.borrow_mut();
                     let shell = shotgun.pump();
+                    if shotgun.empty() {
+                        self.turn = false;
+                    }
                     return Ok(Some(shell));
                 }
                 Item::Saw => {
@@ -96,8 +99,12 @@ impl Player {
     pub fn shot_enemy(&mut self, opponent: &mut Player) -> Shell {
         let mut shotgun = self.shotgun.borrow_mut();
         let result = shotgun.fire();
+
+        //Remove mutable borrow of shotgun so we can borrow it again
+        drop(shotgun);
         let damage = result.damage;
         let shell = result.shell;
+        let shotgun = self.shotgun.borrow();
         opponent.get_shot(damage);
         if opponent.turn || shotgun.empty() {
             self.turn = false;

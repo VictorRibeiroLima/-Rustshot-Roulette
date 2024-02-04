@@ -13,6 +13,22 @@ pub struct FireResult {
 }
 
 impl Shotgun {
+    pub fn is_sawed(&self) -> bool {
+        self.sawed
+    }
+
+    pub fn shell_count(&self) -> (usize, usize) {
+        let mut empty = 0;
+        let mut loaded = 0;
+        for shell in &self.shells {
+            match shell {
+                Shell::Empty => empty += 1,
+                Shell::Loaded => loaded += 1,
+            }
+        }
+        (empty, loaded)
+    }
+
     pub fn empty(&self) -> bool {
         self.shells.is_empty()
     }

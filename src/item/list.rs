@@ -42,4 +42,14 @@ impl ItemList {
         }
         None
     }
+
+    pub fn has_item(&self, item: Item) -> bool {
+        let index = item as u8;
+        if let Some(count) = self.items.get(&index) {
+            if *count > 0 {
+                return true;
+            }
+        }
+        false
+    }
 }

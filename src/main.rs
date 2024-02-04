@@ -6,6 +6,7 @@ use std::{
 
 use crate::player::Player;
 
+mod ai;
 mod item;
 mod player;
 mod shell;
@@ -112,7 +113,7 @@ fn main() {
                     println!("Player 1 shot player 2 with a {}", shell);
                 }
                 "self" => {
-                    let shell = player1.shot_self();
+                    let shell = player1.shot_self(&mut player2);
                     println!("Player 1 shot themselves with a {}", shell);
                 }
                 "exit" => {
@@ -125,8 +126,7 @@ fn main() {
         }
 
         while player2.turn {
-            println!("Player 2's turn");
-            player2.shot_enemy(&mut player1);
+            ai::take_action(&mut player2, &mut player1);
         }
 
         let turns_left = player1.turn || player2.turn;

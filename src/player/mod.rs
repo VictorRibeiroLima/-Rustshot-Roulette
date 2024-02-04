@@ -112,7 +112,7 @@ impl Player {
         shell
     }
 
-    pub fn shot_self(&mut self) -> Shell {
+    pub fn shot_self(&mut self, opponent: &mut Player) -> Shell {
         let mut shotgun = self.shotgun.borrow_mut();
         let result = shotgun.fire();
         let damage = result.damage;
@@ -121,8 +121,11 @@ impl Player {
             Some(damage) => self.health = damage,
             None => self.health = 0,
         };
-        if self.health == 0 || shotgun.empty() {
+        if self.health == 0 || shotgun.empty() || damage > 0 {
             self.turn = false;
+        }
+        if !self.turn && !shotgun.empty() {
+            opponent.turn = true;
         }
         shell
     }
